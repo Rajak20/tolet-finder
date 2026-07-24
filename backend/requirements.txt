@@ -1,0 +1,9 @@
+# backend/requirements.txt
+flask
+flask-cors
+flask-jwt-extended
+supabase
+werkzeug
+gunicorn
+requests
+flask-limiter
