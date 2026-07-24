@@ -7,3 +7,4 @@ werkzeug
 gunicorn
 requests
 flask-limiter
+python-dotenv
