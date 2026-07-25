@@ -52,25 +52,59 @@ def login():
 from datetime import datetime, timedelta
 from utils.email import generate_otp, send_otp_email
 
+# @auth_bp.route('/send-otp', methods=['POST'])
+# def send_otp():
+#     email = request.get_json().get('email')
+
+#     existing_user = supabase.table('users').select('id').eq('email', email).execute()
+#     if existing_user.data:
+#         return jsonify({'error': 'Email already registered'}), 409
+
+#     otp_code = generate_otp()
+#     expires_at = (datetime.utcnow() + timedelta(minutes=10)).isoformat()
+
+#     supabase.table('otp_verifications').insert({
+#         'email': email,
+#         'otp_code': otp_code,
+#         'expires_at': expires_at
+#     }).execute()
+
+#     send_otp_email(email, otp_code)
+#     return jsonify({'message': 'OTP sent'}), 200
+
+
 @auth_bp.route('/send-otp', methods=['POST'])
 def send_otp():
-    email = request.get_json().get('email')
+    try:
+        email = request.get_json().get('email')
+        print("Email:", email)
 
-    existing_user = supabase.table('users').select('id').eq('email', email).execute()
-    if existing_user.data:
-        return jsonify({'error': 'Email already registered'}), 409
+        existing_user = supabase.table('users').select('id').eq('email', email).execute()
 
-    otp_code = generate_otp()
-    expires_at = (datetime.utcnow() + timedelta(minutes=10)).isoformat()
+        if existing_user.data:
+            return jsonify({'error': 'Email already registered'}), 409
 
-    supabase.table('otp_verifications').insert({
-        'email': email,
-        'otp_code': otp_code,
-        'expires_at': expires_at
-    }).execute()
+        otp_code = generate_otp()
+        print("OTP:", otp_code)
 
-    send_otp_email(email, otp_code)
-    return jsonify({'message': 'OTP sent'}), 200
+        expires_at = (datetime.utcnow() + timedelta(minutes=10)).isoformat()
+
+        print("Saving OTP...")
+        supabase.table('otp_verifications').insert({
+            'email': email,
+            'otp_code': otp_code,
+            'expires_at': expires_at
+        }).execute()
+
+        print("Sending email...")
+        send_otp_email(email, otp_code)
+
+        print("Done")
+        return jsonify({'message': 'OTP sent'}), 200
+
+    except Exception as e:
+        print("ERROR:", e)
+        return jsonify({"error": str(e)}), 500
 
 
 @auth_bp.route('/verify-otp', methods=['POST'])
