@@ -14,9 +14,11 @@ load_dotenv()
 app = Flask(__name__)
 limiter.init_app(app)
 app.config.from_object(Config)
-CORS(app, 
-     resources={r"/api/*":{"origins":"*"}},
-     supports_credentials=True)
+CORS(app, origins=[
+    "http://localhost:5173",
+    "https://tolet-finder-ten.vercel.app",
+    "https://tolet-finder-app.netlify.app"
+])
 jwt = JWTManager(app)
 
 app.register_blueprint(auth_bp, url_prefix='/api/auth')
